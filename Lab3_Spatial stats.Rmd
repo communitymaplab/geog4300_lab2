@@ -107,4 +107,4 @@ You can also use the spatstat package to create a ppp object for the data on bur
 
 **Question 12 (3 points)** _In this lab, you have used mean center, calculated rates, location quotients, kernel density mapping, and quadrat analysis to analyze the distribution of crime in Spokane. Pick **two** of these and compare what they tell you about this dataset. What do you learn about these data from each?_ 
 
-{Reponse here.}
+{Response here.}
