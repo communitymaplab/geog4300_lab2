@@ -14,8 +14,6 @@ library(spatstat)
 
 ## Spatial statistics and visualization
 
-**Due:** Monday, Sept. 30
-
 **Value:** 30 points
 
 **Overview:**
@@ -59,13 +57,13 @@ In the first section of this lab, you'll load this data and analyze it using sev
 ###Part 2: Crime rates###
 In the second section of this lab, you'll do a spatial join of points to precincts to identify the precinct ID of each reported crime. You'll then summarise these reports to create a crime rate for each precinct, which is usually reported as crime per 100,000 people.
 
-**Question 6 (3 points):** _First, match points to their precinct using a spatial join. Use st_as_sf to convert the crime reports to spatial data. Then use st_join to link precinct information to the crime reports. When that's done, remove the geometry column using st_set_geometry and then filter out any points that do not have a matching precinct. Call the head of this table using kable when you are done._
+**Question 6 (3 points):** _Link the crimes from 2012 to the precinct they were in. To do this, first filter the points based on year and then match points to their precinct using a spatial join. Use st_as_sf to convert the crime reports to spatial data. Then use st_join to link precinct information to the crime reports. When that's done, remove the geometry column using st_set_geometry and then filter out any points that do not have a matching precinct. Call the head of this table using kable when you are done._
 
 ```{r}
 #Code goes here.
 ```
 
-**Question 7 (3 points):** _Next, make a table of *crime rates*. To do so, create a summary table showing counts of each type of offense by precinct in these data using group_by and summarise, grouping by precinct number, population, and offense type. Spread the data to wide format with the Offense types as column names and the count of reports as observations. Use kable to show *the whole table* when done._
+**Question 7 (3 points):** _Next, make a table of *crime rates*. To do so, create a summary table showing counts of each type of offense by precinct in these data using group_by and summarise, grouping by precinct number, population, and offense type. Spread the data to wide format with the Offense types as column names and the count of reports as observations. Use kable to show the head of this table when done._
 
 ```{r}
 #Code goes here
@@ -85,7 +83,7 @@ In the second section of this lab, you'll do a spatial join of points to precinc
 
 {Explanation goes here.}
 
-**Question 10 (3 points)** _The burglary rate for the city of Spokane in this dataset is 10,639 per 100,000 residents. Using this figure, calculate the location quotient for burglary in each precinct within the city. Which precincts have the highest and lowest location quotients? What does this tell you about each of those precincts?_
+**Question 10 (3 points)** _The burglary rate for the city of Spokane in 2012, according to this dataset, is 1,657 per 100,000 residents. Using this figure, calculate the location quotient for burglary in each precinct within the city. Which precincts have the highest and lowest location quotients? What does this tell you about each of those precincts?_
 
 ```{r}
 #Code goes here
