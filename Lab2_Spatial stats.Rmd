@@ -74,7 +74,7 @@ In the second section of this lab, you'll do a spatial join of points to precinc
 #Code goes here
 ```
 
-**Question 9:** _Use left_join to join the precinct boundaries and burglary rate data frame. Then use tmap to create a map of the burglary rate. Use style="jenks" in the tm_polygons function to use natural breaks classifciation. What's one geographic trend you see on this map?_
+**Question 9:** _Use left_join to join the precinct boundaries and burglary rate data frame. Then use tmap to create a map of the burglary rate. Use style="jenks" in the tm_polygons function to use natural breaks classification. What's one geographic trend you see on this map?_
 
 ```{r}
 #Code goes here
