@@ -99,7 +99,7 @@ The last section of the lab asks you to create a kernel density map of burglarie
 #Code goes here.
 ```
 
-**Question 12:** _Create a kernel density map for burglaries in Spokane during the study period using spatstat using a kernel size that you believe best shows the distribution of reported crime._
+**Question 12:** _Create a kernel density map for burglaries in Spokane during the study period using spatstat using a kernel size that you believe best shows the distribution of reported crime. Remember that the unit of these data are decimal degrees, so the size of the kernel should be at that scale._
 
 ```{r}
 #Code goes here.
