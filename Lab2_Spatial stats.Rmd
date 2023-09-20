@@ -1,5 +1,5 @@
 ---
-title: 'Geog 4/6300: Lab 3'
+title: 'Geog 4/6300: Lab 2'
 output:
   github_document: default
 ---
@@ -89,9 +89,9 @@ In the second section of this lab, you'll do a spatial join of points to precinc
 
 {Response goes here.}
 
-**Question 11:** _How do you feel about the work you did on this lab? Was it easy, moderate, or hard? What were the biggest things you learned by completing it? How would you rate it low pass/pass/high pass)?_
+**Question 11:** _How do you feel about the work you did on this lab? Was it easy, moderate, or hard? What were the biggest things you learned by completing it?_
 
-## Bonus question! Pick one of the below
+## Challenge question! Pick one of the below
 
 Option 1:
 The st_make_grid function in tmap allows you to create quadrats of varying sizes. Create a quadrat grid for Spokane using the precinct polygons that you think is of appropriate scale. See this walkthrough for how to do so: https://vialab.mit.edu/tutorials/module/mapping-in-r-street-trees-in-camberville/

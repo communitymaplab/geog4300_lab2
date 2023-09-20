@@ -14,6 +14,6 @@ Complete the lab assignment by filling in the template. Knit it to a Github docu
 * Question 10:<p>
 * Question 11:<p>
 
-* Bonus:
+* Challenge:
 <p>
-Overall rating: 
+Overall rating:
