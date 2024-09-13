@@ -23,7 +23,7 @@ The data folder has two files related to crime data for Spokane, Washington.
 
 * "Spokane_precincts" has precinct boundaries for the city of Spokane and its population from 2015. This is saved as a geojson file.
 
-In the first section of this lab, you'll load this data and analyze it using several metrics related to point pattern analysis.
+In the first section of this lab, you'll load this data and use multiple techniques from point pattern analysis to describe the spatial distribution of these reported crimes. 
 
 **Question 1:** _Load the crime reports (Spokane_crimes_all) file using read_csv. Then use st_read to import the precinct boundaries. Call the head of the Spokane_crimes_all file using kable when you are done._
 
@@ -41,7 +41,7 @@ In the first section of this lab, you'll load this data and analyze it using sev
 
 {Your answer here.}
 
-**Question 4:** _Filter the crime reports so that it contains just murder as the offense type, and then use st_as_sf to convert these to spatial data. Using tmap, create a map that shows the location of all reports in the this data frame and the precinct boundaries. Also include a scale bar and north arrow. See class scripts for a model to work from._
+**Question 4:** _Filter the crime reports so that it contains just murder as the offense type, and then use st_as_sf to convert these to spatial data. Using tmap, create a map that shows the location of all reports in the this data frame and the precinct boundaries. If you'd like, you can also include a scale bar and north arrow. See class scripts for a model to work from._
 
 ```{r}
 #Code goes here
@@ -53,15 +53,15 @@ In the first section of this lab, you'll load this data and analyze it using sev
 
 ###Part 2: Crime rates
 
-In the second section of this lab, you'll do a spatial join of points to precincts to identify the precinct ID of each reported crime. You'll then summarise these reports to create a crime rate for each precinct, which is usually reported as crime per 100,000 people.
+In the second section of this lab, you'll create a map of crime rates, which are generally preferred to raw counts when mapping distribution. But you'll need to do some data transformation. First you'll do a spatial join of points to precincts to identify the precinct ID of each reported crime. You'll then summarise these reports to create a crime rate for each precinct, which is usually reported as crime per 100,000 people.
 
-**Question 6:** _Link the crimes from 2012 to the precinct they were in. To do this, first filter the points to just 2012 and then match points to their precinct using a spatial join. Use st_as_sf to convert the crime reports to spatial data. Then use st_join to link precinct information to the crime reports. When that's done, remove the geometry column using st_set_geometry and then filter out any points that do not have a matching precinct. Call the head of this table using kable when you are done._
+**Question 6:** _Link the crimes from 2012 to the precinct they were in. To do this, first filter the points to just 2012 and then match points to their precinct using a spatial join. Use `st_as_sf` to convert the crime reports to spatial data. Then use `st_join` to link precinct information to the crime reports. When that's done, remove the geometry column using `st_set_geometry` and then filter out any points that do not have a matching precinct. Call the head of this table using `kable` when you are done._
 
 ```{r}
 #Code goes here.
 ```
 
-**Question 7:** _Next, make a table of total police reports by offense type by precinct for this 2012 crime report data. Using group_by and summarise, grouping by precinct number, population, and offense type. Spread the data to wide format with the Offense types as column names and the count of reports as observations. Use kable to show the head of this table when done._
+**Question 7:** _Next, make a table of *total police reports by offense type by precinct* for this 2012 crime report data. To do so, use `group_by` and `summarise` with the relevant grouping variables. Spread the data to wide format with the Offense types as column names and the count of reports as observations. Use `kable` to show the head of this table when done._
 
 ```{r}
 #Code goes here
@@ -73,7 +73,7 @@ In the second section of this lab, you'll do a spatial join of points to precinc
 #Code goes here
 ```
 
-**Question 9:** _Use left_join to join the precinct boundaries and burglary rate data frame. Then use tmap to create a map of the burglary rate. Use style="jenks" in the tm_polygons function to use natural breaks classification. What's one geographic trend you see on this map?_
+**Question 9:** _Use `left_join` to join the precinct boundaries and burglary rate data frame. Then use `tmap` to create a map of the burglary rate. Use style="jenks" in the `tm_polygons` function to use natural breaks classification. You can try to place the legend outside the map as well. What's one geographic trend you see on this map?_
 
 ```{r}
 #Code goes here
@@ -89,7 +89,7 @@ In the second section of this lab, you'll do a spatial join of points to precinc
 
 {Response goes here.}
 
-**Question 11:** _How do you feel about the work you did on this lab? Was it easy, moderate, or hard? What were the biggest things you learned by completing it?_
+**Self-reflection** _How do you feel about the work you did on this lab? Was it easy, moderate, or hard? What were the biggest things you learned by completing it?_
 
 ## Challenge question! Pick one of the below
 
