@@ -91,6 +91,12 @@ In the second section of this lab, you'll create a map of crime rates, which are
 
 **Self-reflection** _How do you feel about the work you did on this lab? Was it easy, moderate, or hard? What were the biggest things you learned by completing it?_
 
+{Response}
+
+**Acknowledgements** _What assistance did you receive while completing this lab? This can include help from classmates or from online sources such as ChatGPT. Explain which parts of this lab submission (if any) are not your own original work._
+
+{Response}
+
 ## Challenge question! Pick one of the below
 
 Option 1:
