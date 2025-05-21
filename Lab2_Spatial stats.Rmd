@@ -6,119 +6,120 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(tidyverse)
-library(sf)
-library(tmap)
 ```
 
-## Spatial statistics and visualization
+## Spatial statistics with raster and vector data
 
 **Overview:**
-This lab has two main sections: mapping police reports and calculating crime rates/location quotients. Your answers to the lab questions should be typed in the relevant spaces below and pushed to your Github repo. 
+In this lab, you'll be working with raster (geotiff) data from the ERA5 climate reanalysis, which provides retrospective data on atmospheric conditions from 1940 through (almost) the present day. More specifically, you'll be calculating descriptive statistics for data on daily temperature from 2022-2024 and using data from the Census to assess heat vulnerability. You'll also use these data to identify differences in the preferred temperature between two tree species whose location data are provided through the iNaturalist platform.
+
+The ERA5 data we are mapping come from the Google Earth Engine platform, and more information on it is available at [this Github repo](https://github.com/communitymaplab/era5_1950-69_2014-2024). 
+
+For this lab to be marked complete, the following criteria must be met:
+
+* Your responses should show your ability to load raster data in R and do math functions with it. (Tasks 1-3)
+* Your responses should show your ability to summarize/analyze raster data with point and polygon vector datasets. (Tasks 3 and 7)
+* Your responses should show a growing ability to map data in R using sf and terra. (Tasks 1 and 6)
+* Your responses should show your ability to manipulate R data frames to calculate new variables and summary statistics. (Tasks 4 and 8)
+* Your responses should demonstrate that you can describe statistical and spatial trends in your data using summary statistics such as mean, standard deviation, and mean center. (Tasks 5 and 9)
+
+Before you get started, you'll need to load the following packages: `tidyverse`, `terra`, `sf`, and `tmap`. Do that in the code chunk below.
+
+```{r packages}
+#Load packages here.
+```
 
 ###Part 1: mapping the data and its distribution###
-The data folder has two files related to crime data for Spokane, Washington.  
 
-* “Spokane_crimes_all” has data for every crime committed in from 2000-2015. 
+How many people live in counties with high July temperatures? 
 
-* "Spokane_precincts" has precinct boundaries for the city of Spokane and its population from 2015. This is saved as a geojson file.
+In part 1, you'll answer this question by loading temperature data for July dates in 2022-24, calculating the mean value across those dates, and then using zonal statistics to calculate county level means. Lastly, you'll use Census data to calculate the count of people in "high temperature" counties.
 
-In the first section of this lab, you'll load this data and use multiple techniques from point pattern analysis to describe the spatial distribution of these reported crimes. 
+Your first step is to load just one of the temperature rasters--the one for July 1, 2024--and convert the data from degrees Kelvin to degrees Celsius.
 
-**Question 1:** _Load the crime reports (Spokane_crimes_all) file using read_csv. Then use st_read to import the precinct boundaries. Call the head of the Spokane_crimes_all file using kable when you are done._
+You should see this raster in the data folder of this lab repository. Load the raster below using the `rast` function from `terra`. Then convert the temperatures from Kelvin to Celsius by subtracting 273.15 from each cell. Plot the raster when you're done.
 
-```{r}
+If you want an extra challenge, add code that converts these Celsius temperatures to Fahrenheit--you'll have to look up the formula on your own. Plot that raster as well if you try this.
+
+**Task 1:** _Load the July 1, 2024 temperature raster and convert it from Kelvin to Celsius. Plot it when you are done. Optional: also calculate and plot the same raster in Fahrenheit._
+
+```{r task1}
 #Code goes here
 ```
 
-**Question 2:** _Filter the data to include just arson, assault, and vehicle theft. Use group_by and summarise to calculate the mean centers for each type of offense. Then use ggplot and geom_point to plot these points on a graph, changing the color based on the offense._
+Now that you've got the hang of this, let's load ALL the rasters for July dates in 2022-2024. To do that, you'll need to create a list of the files in the "temp_july2022_2024" data folder that includes the relevant subfolder names and load them together using `rast`. Also convert them from Kelvin to Celsius once they're loaded. Use the `nlyr` function to show the number of rasters you've loaded when you're done.
 
-```{r}
+**Task 2:** _Load all temperature rasters for July dates in 2022-2024 using `rast` and convert them from Kelvin to Celsius. Then count the number of raster layers using `nlyr`._
+
+```{r task2}
 #Code goes here
 ```
 
-**Question 3:** _Interpret how geographic differences between the mean centers you calculated are meaningful. What do they tell you about the locations of these crimes relative to one another?_
+Now you can calculate the county level mean temperatures. Start by using the `mean` function to calculate the mean value of the raster layers you've loaded. 
 
-{Your answer here.}
+You'll then need to load the county data vector file, ("ACSCtyData_2022ACS_simplify.gpkg"). Use zonal statistics to calculate the mean value of the mean temperature raster you just created for each county. Lastly, join those values to the county data and plot the county values using `tmap`.
 
-**Question 4:** _Filter the crime reports so that it contains just murder as the offense type, and then use st_as_sf to convert these to spatial data. Using tmap, create a map that shows the location of all reports in the this data frame and the precinct boundaries. If you'd like, you can also include a scale bar and north arrow. See class scripts for a model to work from._
+**Task 3:** _Calculate the mean temperature for all raster layers you loaded in Task 2. Then load the provided county vector layer and calculate the mean value of that raster using zonal statistics. Plot that mean value using tmap._
 
-```{r}
-#Code goes here
+```{r task3}
+
 ```
 
-**Question 5:** _The st_as_sf function has multiple parameters (such as `coords`). Briefly explain the purpose of each one you used for question 4._
+For the last step, you want to identify "high temperature" counties, which in our case means counties with temperatures higher than 30 degrees Celsius. Filter your county to just those counties below. Then calculate the number of people who live in them using the "totpop_race" variable.
 
-{Your response here.}
+**Task 4:** _Filter the county data to keep only counties with mean July temperatures over 30 degrees Celsius. Calculate the population of those counties, making sure that your result is printed in your final document._
 
-###Part 2: Crime rates
+That's it for part 1. As a reflection, open up the filtered dataset you created in task 4. What are two things you notice about these "high temperature" counties that might be important for groups planning to address heat vulnerability?
 
-In the second section of this lab, you'll create a map of crime rates, which are generally preferred to raw counts when mapping distribution. But you'll need to do some data transformation. First you'll do a spatial join of points to precincts to identify the precinct ID of each reported crime. You'll then summarise these reports to create a crime rate for each precinct, which is usually reported as crime per 100,000 people.
+**Task 5:** _What do you notice about the high temperature counties?_
 
-**Question 6:** _Link the crimes from 2012 to the precinct they were in. To do this, first filter the points to just 2012 and then match points to their precinct using a spatial join. Use `st_as_sf` to convert the crime reports to spatial data. Then use `st_join` to link precinct information to the crime reports. When that's done, remove the geometry column using `st_set_geometry` and then filter out any points that do not have a matching precinct. Call the head of this table using `kable` when you are done._
+{Your response goes here}
 
-```{r}
-#Code goes here.
+###Part 2: Trees and temperature in Georgia
+In the second part of this lab, you'll be answering this question: what are the preferred mean temperatures for two common tree species in Georgia? In the data folder, you'll find iNaturalist citizen science observations for live oaks and great rhododendrons. (Google them to find out more about these pretty trees.) These observations are in a single file named "gatree_obs_inat.csv" in the data folder.
+
+To do this, you'll first need to load the iNaturalist observations and convert them to a point dataset using the `longitude` and `latitude` columns. Do that below and then map them both on a single map using the `tmap` package. You should color those points based on the "common_name" field.
+
+**Task 6:** _Load the live oak and great rhododendron observations, convert them to a sf point data format, and map them using `tmap`. The color of the points could be based on the `common_name` field._
+
+```{r task6}
+#Your code goes here.
 ```
 
-**Question 7:** _Next, make a table of *total police reports by offense type by precinct* for this 2012 crime report data. To do so, use `group_by` and `summarise` with the relevant grouping variables. Spread the data to wide format with the Offense types as column names and the count of reports as observations. Use `kable` to show the head of this table when done._
+Now you can calculate the mean temperature for each of these observations with the point and raster data. Use the `extract` function from `terra` to do so. You'll have to "bind" the temperature data to the main tree dataset using `iNaturalist afterwards. Call the head of the combined data using `kable` when you have done so.
 
-```{r}
-#Code goes here
+**Task 7:** _Record the value of the mean temperature raster for each tree observation using `extract`. Then bind those values to the main tree dataset and call the *head* of the table (NOT the whole thing) using `kable`._
+
+```{r task7}
+#Your code goes here.
 ```
 
-**Question 8:** _Select just the precinct number, population, and count of burglaries from the precincts data frame. Then calculate the *burglary rate*, dividing the crimes by the population and multiplying by 100,000. Create a histogram using ggplot showing the distribution of this new variable._ 
+Now you can do some summary statistics for this tree data. Calculate the mean and standard deviation for the temperature values for each species, as well as the mean longitude and latitude (the mean center). `Group_by` and `summarise` should work well for this. Call the table using `kable` when you are done.
+
+**Task 8:** _Calculate the mean and standard deviation for temperature by tree species as well as the mean center for their observations._
+
+Reflecting on this section, take a look at the table you created in task 8. What does it tell you about the temperature preferences and general location for each species?
+
+**Task 9:** _What does the table in task 8 tell you?_
+
+{Your response goes here.}
+
+### Lab challenge
+
+The data folder also includes temperature data for the 1950-52 period. Load those data and calculate the mean values at county level as you did for the 2022-24 data. Then join those datasets and calculate the **CHANGE** in mean values between those two periods. Map the resulting variable and describe any geographic patterns you see. Which areas have the biggest changes?
 
 ```{r}
-#Code goes here
+#Start your code here.
 ```
 
-**Question 9:** _Use `left_join` to join the precinct boundaries and burglary rate data frame. Then use `tmap` to create a map of the burglary rate. Use style="jenks" in the `tm_polygons` function to use natural breaks classification. You can try to place the legend outside the map as well. What's one geographic trend you see on this map?_
 
-```{r}
-#Code goes here
-```
+### Final submission stuff
 
-{Explanation goes here.}
+**Disclosure of assistance:** Besides class materials, what other sources of assistance did you use while completing this lab? These can include input from classmates, relevant material identified through web searches (e.g., Stack Overflow), or assistance from ChatGPT or other AI tools. How did these sources support your own learning in completing this lab?
 
-**Question 10:** _The burglary rate for the city of Spokane in 2012, according to this dataset, is 1,657 per 100,000 residents. Using this figure, calculate the location quotient for burglary in each precinct within the city. Which precincts have the highest and lowest location quotients? Interpret what this number tells you for each of these precincts._
+{Response here.}
 
-```{r}
-#Code goes here
-```
+**Lab reflection:** How do you feel about the work you did on this lab? Was it easy, moderate, or hard? What are the biggest things you learned by completing it?
 
-{Response goes here.}
-
-**Self-reflection** _How do you feel about the work you did on this lab? Was it easy, moderate, or hard? What were the biggest things you learned by completing it?_
-
-{Response}
-
-**Acknowledgements** _What assistance did you receive while completing this lab? This can include help from classmates or from online sources such as ChatGPT. Explain which parts of this lab submission (if any) are not your own original work._
-
-{Response}
-
-## Challenge question! Pick one of the below
-
-Option 1:
-The st_make_grid function in tmap allows you to create quadrats of varying sizes. Create a quadrat grid for Spokane using the precinct polygons that you think is of appropriate scale. See this walkthrough for how to do so: https://vialab.mit.edu/tutorials/module/mapping-in-r-street-trees-in-camberville/
-
-Following a similar process as you used in steps 6 and 7, count the burglary reports in each grid cell and map the results using tmap. Then write a short response that compares the map you made using quadrats to the one using precincts. Do they show similar spatial patterns? Why or why not? Which do you prefer? 
-
-```{r}
-#Code goes here
-```
-
-{Response goes here}
-
-
-Option 2: 
-The tm_facets function allows you to make small multiple maps with tmap. Pick four other listed offenses in the crime report data and create a dataset that joins the precinct boundaries to the counts of each offense by precinct. Note: this dataset will need to be in **long** format, so you will have four rows for each precinct. Then use tm_facets with tmap to create a single small multiples map showing the geographic distribution of each offense. Comment on any spatial patterns you see.
-
-Guide to using tm_facets: https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html#facets
-
-```{r}
-#Code goes here
-```
-
-{Response goes here}
+{Your response here}
 
