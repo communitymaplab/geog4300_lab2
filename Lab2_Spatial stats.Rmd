@@ -76,7 +76,7 @@ That's it for part 1. As a reflection, open up the filtered dataset you created 
 {Your response goes here}
 
 ###Part 2: Trees and temperature in Georgia
-In the second part of this lab, you'll be answering this question: what are the preferred mean temperatures for two common tree species in Georgia? In the data folder, you'll find iNaturalist citizen science observations for live oaks and great rhododendrons. (Google them to find out more about these pretty trees.) These observations are in a single file named "gatree_obs_inat.csv" in the data folder.
+In the second part of this lab, you'll be answering this question: what are the preferred mean temperatures for two common tree (or tree-like) species in Georgia? In the data folder, you'll find iNaturalist citizen science observations for live oaks and great rhododendrons. (Google them to find out more about these pretty plants.) These observations are in a single file named "gatree_obs_inat.csv" in the data folder.
 
 To do this, you'll first need to load the iNaturalist observations and convert them to a point dataset using the `longitude` and `latitude` columns. Do that below and then map them both on a single map using the `tmap` package. You should color those points based on the "common_name" field.
 
