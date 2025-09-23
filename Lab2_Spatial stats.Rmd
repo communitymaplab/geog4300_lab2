@@ -10,28 +10,30 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Spatial statistics with raster and vector data
 
-**Overview:**
-In this lab, you'll be working with raster (geotiff) data from the ERA5 climate reanalysis, which provides retrospective data on atmospheric conditions from 1940 through (almost) the present day. More specifically, you'll be calculating descriptive statistics for data on daily temperature from 2022-2024 and using data from the Census to assess heat vulnerability. You'll also use these data to identify differences in the preferred temperature between two tree species whose location data are provided through the iNaturalist platform.
+**Overview:** In this lab, you'll be working with raster (geotiff) data from the ERA5 climate reanalysis, which provides retrospective data on atmospheric conditions from 1940 through (almost) the present day. More specifically, you'll be calculating descriptive statistics for data on daily temperature from 2022-2024 and using data from the Census to assess heat vulnerability. You'll also use these data to identify differences in the preferred temperature between two tree species whose location data are provided through the iNaturalist platform.
 
-The ERA5 data we are mapping come from the Google Earth Engine platform, and more information on it is available at [this Github repo](https://github.com/communitymaplab/era5_1950-69_2014-2024). 
+The ERA5 data we are mapping come from the Google Earth Engine platform, and more information on it is available at [this Github repo](https://github.com/communitymaplab/era5_1950-69_2014-2024).
 
 For this lab to be marked complete, the following criteria must be met:
 
-* Your responses should show your ability to load raster data in R and do math functions with it. (Tasks 1-3)
-* Your responses should show your ability to summarize/analyze raster data with point and polygon vector datasets. (Tasks 3 and 7)
-* Your responses should show a growing ability to map data in R using sf and terra. (Tasks 1 and 6)
-* Your responses should show your ability to manipulate R data frames to calculate new variables and summary statistics. (Tasks 4 and 8)
-* Your responses should demonstrate that you can describe statistical and spatial trends in your data using summary statistics such as mean, standard deviation, and mean center. (Tasks 5 and 9)
+-   Your responses should show your ability to load raster data in R and do math functions with it. (Tasks 1-3)
+-   Your responses should show your ability to summarize/analyze raster data with point and polygon vector datasets. (Tasks 3 and 7)
+-   Your responses should show a growing ability to map data in R using sf and terra. (Tasks 1 and 6)
+-   Your responses should show your ability to manipulate R data frames to calculate new variables and summary statistics. (Tasks 4 and 8)
+-   Your responses should demonstrate that you can describe statistical and spatial trends in your data using summary statistics such as mean, standard deviation, and mean center. (Tasks 5 and 9)
 
 Before you get started, you'll need to load the following packages: `tidyverse`, `terra`, `sf`, and `tmap`. Do that in the code chunk below.
 
 ```{r packages}
-#Load packages here.
+library(tidyverse)
+library(terra)
+library(sf)
+library(tmap)
 ```
 
 ###Part 1: mapping the data and its distribution###
 
-How many people live in counties with high July temperatures? 
+How many people live in counties with high July temperatures?
 
 In part 1, you'll answer this question by loading temperature data for July dates in 2022-24, calculating the mean value across those dates, and then using zonal statistics to calculate county level means. Lastly, you'll use Census data to calculate the count of people in "high temperature" counties.
 
@@ -41,66 +43,136 @@ You should see this raster in the data folder of this lab repository. Load the r
 
 If you want an extra challenge, add code that converts these Celsius temperatures to Fahrenheit--you'll have to look up the formula on your own. Plot that raster as well if you try this.
 
-**Task 1:** _Load the July 1, 2024 temperature raster and convert it from Kelvin to Celsius. Plot it when you are done. Optional: also calculate and plot the same raster in Fahrenheit._
+**Task 1:** *Load the July 1, 2024 temperature raster and convert it from Kelvin to Celsius. Plot it when you are done. Add a title and units on the legend. Optional: also calculate and plot the same raster in Fahrenheit.*
 
 ```{r task1}
-#Code goes here
+temp_jul1<-rast("data/temp_july2022_2024/temperature_2m_2024-07-01.tif")
+temp_jul1_degc<-temp_jul1 - 273.15
+plot(temp_jul1_degc,main='Temperature: July 1, 2024', plg=list(title=expression("("*degree*"C)")))
+
+#C to F
+temp_jul1_degf<-(temp_jul1_degc * 1.8) +32
+
+plot(temp_jul1_degf,main='Temperature: July 1, 2024',plg=list(title=expression("("*degree*"F)")))
 ```
 
 Now that you've got the hang of this, let's load ALL the rasters for July dates in 2022-2024. To do that, you'll need to create a list of the files in the "temp_july2022_2024" data folder that includes the relevant subfolder names and load them together using `rast`. Also convert them from Kelvin to Celsius once they're loaded. Use the `nlyr` function to show the number of rasters you've loaded when you're done.
 
-**Task 2:** _Load all temperature rasters for July dates in 2022-2024 using `rast` and convert them from Kelvin to Celsius. Then count the number of raster layers using `nlyr`._
+**Task 2:** *Load all temperature rasters for July dates in 2022-2024 using `rast` and convert them from Kelvin to Celsius. Then count the number of raster layers using `nlyr`. Is the number you would expect?*
 
 ```{r task2}
-#Code goes here
+temp_july_files<-list.files(path="data/temp_july2022_2024",full.names=T,
+                      pattern=".tif")
+temp_july_data<-rast(temp_july_files)- 273.15
+nlyr(temp_july_data)
+
 ```
 
-Now you can calculate the county level mean temperatures. Start by using the `mean` function to calculate the mean value of the raster layers you've loaded. 
+Now you can calculate the county level mean temperatures. Start by using the `mean` function to calculate the mean value of the raster layers you've loaded.
 
 You'll then need to load the county data vector file, ("ACSCtyData_2022ACS_simplify.gpkg"). Use zonal statistics to calculate the mean value of the mean temperature raster you just created for each county. Lastly, join those values to the county data and plot the county values using `tmap`.
 
-**Task 3:** _Calculate the mean temperature for all raster layers you loaded in Task 2. Then load the provided county vector layer and calculate the mean value of that raster using zonal statistics. Plot that mean value using tmap._
+**Task 3:** *Calculate the mean temperature for all raster layers you loaded in Task 2. Then load the provided county vector layer and calculate the mean value of that raster using zonal statistics. Plot that mean value using tmap. Add a title and units to the legend. *
 
 ```{r task3}
+# Calculate mean temperature
+mean_july_temp<-mean(temp_july_data)
 
+# Load county data on the same projection as ERA5 data
+cty<-st_read("data/ACSCtyData_2022ACS_simplify.gpkg") %>%
+  st_transform(crs(temp_jul1_degf))
+
+# Calculate mean temperature in each county, call it 'july_mean_temp'
+cty_temp_full<-bind_cols(cty,zonal(mean_july_temp,vect(cty),fun="mean",na.rm=T)) %>%
+  rename("july_mean_temp"="mean")
+
+# Map the mean value with tmap
+# This is the mean July temp on the ERA5 grid:
+tm_shape(mean_july_temp)+tm_raster()
+
+# And this is it for county-level:
+states<-st_read("data/states_albers.gpkg") 
+
+tm_shape(cty_temp_full)+
+  tm_polygons("july_mean_temp",border.alpha=0,style="jenks")+
+  tm_title("Mean July temperature (2022-2024)")+
+  tm_legend(title=expression("("*degree*"F)"))+
+tm_shape(states)+
+  tm_borders()
 ```
 
 For the last step, you want to identify "high temperature" counties, which in our case means counties with temperatures higher than 30 degrees Celsius. Filter your county to just those counties below. Then calculate the number of people who live in them using the "totpop_race" variable.
 
-**Task 4:** _Filter the county data to keep only counties with mean July temperatures over 30 degrees Celsius. Calculate the population of those counties, making sure that your result is printed in your final document._
+
+**Task 4:** *Filter the county data to keep only counties with mean July temperatures over 30 degrees Celsius. Calculate the population of those counties, making sure that your result is printed in your final document.*
+```{r Task 4}
+high_temp_cty<-cty_temp_full %>%
+  filter(july_mean_temp>30)
+sum(high_temp_cty$totpop_race)
+```
+
 
 That's it for part 1. As a reflection, open up the filtered dataset you created in task 4. What are two things you notice about these "high temperature" counties that might be important for groups planning to address heat vulnerability?
 
-**Task 5:** _What do you notice about the high temperature counties?_
 
-{Your response goes here}
 
-###Part 2: Trees and temperature in Georgia
-In the second part of this lab, you'll be answering this question: what are the preferred mean temperatures for two common tree (or tree-like) species in Georgia? In the data folder, you'll find iNaturalist citizen science observations for live oaks and great rhododendrons. (Google them to find out more about these pretty plants.) These observations are in a single file named "gatree_obs_inat.csv" in the data folder.
+**Task 5:** *What do you notice about the high temperature counties?*
+
+{All in SW, a lot in Texas and Oklahoma.
+Might want to know national average statistics before drawing broad conclusions.}
+
+###Part 2: Trees and temperature in Georgia In the second part of this lab, you'll be answering this question: what are the preferred mean temperatures for two common tree (or tree-like) species in Georgia? In the data folder, you'll find iNaturalist citizen science observations for live oaks and great rhododendrons. (Google them to find out more about these pretty plants.) These observations are in a single file named "gatree_obs_inat.csv" in the data folder.
 
 To do this, you'll first need to load the iNaturalist observations and convert them to a point dataset using the `longitude` and `latitude` columns. Do that below and then map them both on a single map using the `tmap` package. You should color those points based on the "common_name" field.
 
-**Task 6:** _Load the live oak and great rhododendron observations, convert them to a sf point data format, and map them using `tmap`. The color of the points could be based on the `common_name` field._
+**Task 6:** *Load the live oak and great rhododendron observations, convert them to a sf point data format, and map them using `tmap`. The color of the points could be based on the `common_name` field.*
 
 ```{r task6}
-#Your code goes here.
+trees<-read_csv("data/gatree_obs_inat.csv") %>%
+  st_as_sf(coords=c("longitude","latitude"),crs=4326,remove=F) %>%
+  group_by(common_name)
+
+ga_outline<-states %>%
+  st_transform(4326)%>% 
+  filter(str_detect(STATE,"Georgia"))
+tm_shape(ga_outline)+
+  tm_borders()+
+tm_shape(trees)+
+  tm_dots('common_name',size=0.1)
 ```
 
-Now you can calculate the mean temperature for each of these observations with the point and raster data. Use the `extract` function from `terra` to do so. You'll have to "bind" the temperature data to the main tree dataset using `iNaturalist afterwards. Call the head of the combined data using `kable` when you have done so.
+Now you can calculate the mean temperature for each of these observations with the point and raster data. Use the `extract` function from `terra` to do so. You'll have to "bind" the temperature data to the main tree dataset using `iNaturalist afterwards. Call the head of the combined data using`kable\` when you have done so.
 
-**Task 7:** _Record the value of the mean temperature raster for each tree observation using `extract`. Then bind those values to the main tree dataset and call the *head* of the table (NOT the whole thing) using `kable`._
+**Task 7:** *Record the value of the mean temperature raster for each tree observation using `extract`. Then bind those values to the main tree dataset and call the head of the table (NOT the whole thing) using `kable`.*
 
 ```{r task7}
-#Your code goes here.
+library(knitr)
+trees_meantemp<-trees %>%
+  st_set_geometry(NULL) %>%
+  bind_cols(terra::extract(mean_july_temp,vect(trees))) %>%
+  filter(is.na(mean)==FALSE)
+
+
+kable(head(trees_meantemp))
 ```
 
 Now you can do some summary statistics for this tree data. Calculate the mean and standard deviation for the temperature values for each species, as well as the mean longitude and latitude (the mean center). `Group_by` and `summarise` should work well for this. Call the table using `kable` when you are done.
 
-**Task 8:** _Calculate the mean and standard deviation for temperature by tree species as well as the mean center for their observations._
+**Task 8:** *Calculate the mean and standard deviation for temperature by tree species as well as the mean center for their observations.*
+
+```{r Task 8}
+
+trees_summary<-trees_meantemp %>%
+  group_by(common_name) %>%
+  summarise(mean_temp=round(mean(mean),2),
+            sd_temp=round(sd(mean),2),
+            mean_long=round(mean(longitude),2),
+            mean_lat=round(mean(latitude),2))
+```
 
 Reflecting on this section, take a look at the table you created in task 8. What does it tell you about the temperature preferences and general location for each species?
 
-**Task 9:** _What does the table in task 8 tell you?_
+**Task 9:** *What does the table in task 8 tell you?*
 
 {Your response goes here.}
 
@@ -108,10 +180,28 @@ Reflecting on this section, take a look at the table you created in task 8. What
 
 The data folder also includes temperature data for the 1950-52 period. Load those data and calculate the mean values at county level as you did for the 2022-24 data. Then join those datasets and calculate the **CHANGE** in mean values between those two periods. Map the resulting variable and describe any geographic patterns you see. Which areas have the biggest changes?
 
-```{r}
-#Start your code here.
-```
+```{r Challenge}
+# Load the data
+temp_july1950_files<-list.files(path="data/temp_july1950_1952",full.names=T,
+                      pattern=".tif")
+temp_july1950_data<-rast(temp_july1950_files)- 273.15
 
+# Calclate mean values at the county level
+mean_july_temp_1950<-mean(temp_july1950_data)
+
+cty_1950<-bind_cols(cty_temp_full,zonal(mean_july_temp_1950,vect(cty),fun="mean",na.rm=T)) %>%
+  rename("mean_temp_1950"="mean")
+
+# Calculate difference
+cty_temp_chg=cty_1950 %>%
+  mutate(temp_chg=july_mean_temp-mean_temp_1950)
+
+tm_shape(cty_temp_chg)+
+  tm_polygons("temp_chg",border.alpha=0)+
+  tm_shape(states)+
+  tm_borders()
+
+```
 
 ### Final submission stuff
 
@@ -122,4 +212,3 @@ The data folder also includes temperature data for the 1950-52 period. Load thos
 **Lab reflection:** How do you feel about the work you did on this lab? Was it easy, moderate, or hard? What are the biggest things you learned by completing it?
 
 {Your response here}
-
